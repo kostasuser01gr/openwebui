@@ -1,0 +1,10 @@
+# Use pre-built image from GHCR
+FROM ghcr.io/kostasuser01gr/openwebui:main
+
+# Railway injects PORT env var
+ENV PORT=8080
+ENV HOST=0.0.0.0
+
+EXPOSE 8080
+
+# Use the existing CMD from the base image
