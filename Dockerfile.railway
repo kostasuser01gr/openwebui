@@ -1,5 +1,5 @@
-# Use pre-built image from GHCR
-FROM ghcr.io/kostasuser01gr/openwebui:main
+# Use official Open WebUI image from Docker Hub (no egress limits)
+FROM ghcr.io/open-webui/open-webui:main
 
 # Railway injects PORT env var
 ENV PORT=8080
