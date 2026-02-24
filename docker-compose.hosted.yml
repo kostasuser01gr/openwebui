@@ -1,0 +1,56 @@
+# =============================================================================
+# Open WebUI — Hosted Models Only (No Ollama)
+# Production Docker Compose for team deployment
+# =============================================================================
+# Usage:
+#   docker compose -f docker-compose.hosted.yml --env-file .env.hosted up -d
+# =============================================================================
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.8.5
+    container_name: open-webui
+    pull_policy: if_not_present
+    restart: unless-stopped
+
+    ports:
+      - "${OPEN_WEBUI_PORT:-3001}:8080"
+
+    volumes:
+      - open-webui-data:/app/backend/data
+
+    environment:
+      # --- Model Provider (hosted, no Ollama) ---
+      - OLLAMA_BASE_URL=                          # empty = disable Ollama
+      - OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+      # --- Auth & Security ---
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - WEBUI_AUTH=${WEBUI_AUTH:-true}
+      - ENABLE_SIGNUP=${ENABLE_SIGNUP:-false}
+
+      # --- Network ---
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-*}
+      - FORWARDED_ALLOW_IPS=${FORWARDED_ALLOW_IPS:-*}
+
+      # --- Privacy ---
+      - SCARF_NO_ANALYTICS=true
+      - DO_NOT_TRACK=true
+      - ANONYMIZED_TELEMETRY=false
+
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  open-webui-data:
+    # Reuse existing volume from previous deployment to preserve data
+    name: open-webui-main_open-webui
+    external: true
